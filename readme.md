@@ -152,4 +152,4 @@ Please follow any contributing guidelines outlined in the repository.
 
 ## License
 
-*(Optionally include the license under which your project is distributed, e.g., MIT License, Apache 2.0, etc.)*
+MIT License
