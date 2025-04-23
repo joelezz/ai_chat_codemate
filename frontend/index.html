@@ -1,0 +1,631 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chat with Mistral</title>
+  <style>
+    /* Base styles */
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #f2f2f2;
+      color: #333;
+      line-height: 1.6;
+      display: flex;
+      height: 100vh;
+    }
+
+    /* Main chat container */
+    .container {
+      background-color: white;
+      width: 60%;
+      height: 100vh;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+
+    /* Artifact panel */
+    .artifact-panel {
+      width: 40%;
+      height: 100vh;
+      background-color: #f8f8f8;
+      padding: 20px;
+      overflow-y: auto;
+      box-shadow: inset 2px 0 5px rgba(0,0,0,0.05);
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    /* Header */
+    h1 {
+      color: #333;
+      text-align: center;
+      margin: 0;
+      padding: 20px 0;
+      border-bottom: 1px solid #eee;
+    }
+
+    /* Chat box container */
+    #chat-box {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      flex-grow: 1;
+      overflow-y: auto;
+      padding: 15px;
+      margin-bottom: 0;
+      scrollbar-width: thin;
+    }
+
+    /* Styling scrollbar for WebKit browsers */
+    #chat-box::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    #chat-box::-webkit-scrollbar-thumb {
+      background-color: #ccc;
+      border-radius: 3px;
+    }
+
+    /* Message bubbles */
+    .chat-bubble {
+      padding: 12px 16px;
+      border-radius: 16px;
+      max-width: 80%;
+      word-wrap: break-word;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+      animation: fadeIn 0.3s ease-out;
+      margin: 4px 0;
+    }
+
+    .chat-bubble.user {
+      align-self: flex-end;
+      background-color: #3d5aff;
+      color: white;
+      border-bottom-right-radius: 5px;
+      margin-left: auto;
+    }
+
+    .chat-bubble.ai {
+      align-self: flex-start;
+      background-color: #e6f7e6;
+      color: #222;
+      border-bottom-left-radius: 5px;
+    }
+
+    /* Message time stamp */
+    .timestamp {
+      font-size: 0.7em;
+      opacity: 0.7;
+      margin-top: 4px;
+      text-align: right;
+    }
+
+    /* Input area */
+    .input-area {
+      display: flex;
+      gap: 10px;
+      padding: 15px;
+      border-top: 1px solid #eee;
+      background-color: white;
+    }
+
+    #user-input {
+      flex-grow: 1;
+      padding: 12px;
+      border-radius: 20px;
+      border: 1px solid #ddd;
+      font-size: 1em;
+      transition: border-color 0.2s;
+    }
+
+    #user-input:focus {
+      outline: none;
+      border-color: #3d5aff;
+      box-shadow: 0 0 0 2px rgba(61, 90, 255, 0.2);
+    }
+
+    #send-btn {
+      background-color: #3d5aff;
+      color: white;
+      border: none;
+      border-radius: 20px;
+      padding: 0 20px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background-color 0.2s;
+    }
+
+    #send-btn:hover {
+      background-color: #2a3eb1;
+    }
+
+    /* Copy button styling */
+    .copy-btn {
+      margin-top: 5px;
+      padding: 5px 10px;
+      background-color: #eee;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 0.8rem;
+      display: inline-block;
+    }
+
+    .copy-btn:hover {
+      background-color: #ddd;
+    }
+
+    /* Loading indicator */
+    .loading {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 10px;
+    }
+
+    .loading span {
+      width: 8px;
+      height: 8px;
+      margin: 0 2px;
+      background-color: #555;
+      border-radius: 50%;
+      display: inline-block;
+      animation: pulse 1.5s infinite ease-in-out;
+    }
+
+    .loading span:nth-child(2) {
+      animation-delay: 0.2s;
+    }
+
+    .loading span:nth-child(3) {
+      animation-delay: 0.4s;
+    }
+
+    /* Code artifact styling */
+    .code-artifact {
+      background-color: #282c34;
+      border-radius: 8px;
+      box-shadow: 0 3px 8px rgba(0,0,0,0.2);
+      position: relative;
+      animation: slideIn 0.3s ease-out;
+    }
+
+    .code-artifact-header {
+      background-color: #21252b;
+      color: #abb2bf;
+      padding: 10px 15px;
+      border-radius: 8px 8px 0 0;
+      font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+      font-size: 14px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .code-artifact-body {
+      padding: 15px;
+      overflow-x: auto;
+    }
+
+    .code-artifact pre {
+      color: #abb2bf;
+      font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+      margin: 0;
+      white-space: pre;
+      font-size: 14px;
+      line-height: 1.5;
+    }
+
+    .artifact-copy-btn {
+      background-color: rgba(255, 255, 255, 0.1);
+      color: #abb2bf;
+      border: none;
+      border-radius: 4px;
+      padding: 4px 8px;
+      font-size: 12px;
+      cursor: pointer;
+      transition: background-color 0.2s;
+    }
+
+    .artifact-copy-btn:hover {
+      background-color: rgba(255, 255, 255, 0.2);
+    }
+
+    /* Placeholder for when no artifacts are available */
+    .no-artifacts {
+      color: #888;
+      text-align: center;
+      margin-top: 30px;
+      font-style: italic;
+    }
+
+    /* Code reference in chat */
+    .code-reference {
+      background-color: #f0f0f0;
+      border-left: 3px solid #3d5aff;
+      padding: 8px 12px;
+      margin: 5px 0;
+      font-size: 0.9em;
+      cursor: pointer;
+      transition: background-color 0.2s;
+    }
+
+    .code-reference:hover {
+      background-color: #e8e8e8;
+    }
+
+    /* Inline code styling */
+    code {
+      background-color: rgba(0, 0, 0, 0.05);
+      font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+      padding: 2px 4px;
+      border-radius: 3px;
+      font-size: 0.9em;
+      color: #e83e8c;
+    }
+
+    /* Animation */
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes slideIn {
+      from { opacity: 0; transform: translateX(20px); }
+      to { opacity: 1; transform: translateX(0); }
+    }
+
+    @keyframes pulse {
+      0%, 100% { transform: scale(0.8); opacity: 0.5; }
+      50% { transform: scale(1.2); opacity: 1; }
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 900px) {
+      body {
+        flex-direction: column;
+      }
+      
+      .container {
+        width: 100%;
+        height: 60vh;
+      }
+      
+      .artifact-panel {
+        width: 100%;
+        height: 40vh;
+        padding: 10px;
+      }
+      
+      .chat-bubble {
+        max-width: 90%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Mistral Chat</h1>
+    <div id="chat-box"></div>
+    <div class="input-area">
+      <input type="text" id="user-input" placeholder="Type your message..." />
+      <button id="send-btn">Send</button>
+    </div>
+  </div>
+  
+  <div class="artifact-panel">
+    <div class="no-artifacts">No code blocks yet. Code will appear here when shared.</div>
+  </div>
+
+  <script>
+    // Global variable to store code artifacts
+    const codeArtifacts = [];
+    let artifactCounter = 0;
+    
+    // Handle Enter key press for sending message
+    document.getElementById("user-input").addEventListener("keypress", function(event) {
+      if (event.key === "Enter") {
+        event.preventDefault();
+        sendMessage();
+      }
+    });
+
+    async function sendMessage() {
+      const input = document.getElementById('user-input');
+      const message = input.value.trim();
+      if (!message) return;
+
+      // Add user message to chat box
+      addMessageToChat('user', message);
+
+      // Clear input field
+      input.value = '';
+      
+      // Show loading indicator
+      showLoadingIndicator();
+
+      try {
+        // Send message to backend
+        const response = await fetch('http://localhost:8000/chat', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ message })
+        });
+
+        // Remove loading indicator
+        removeLoadingIndicator();
+
+        if (!response.ok) {
+          throw new Error(`API returned status ${response.status}`);
+        }
+
+        const data = await response.json();
+
+        if (data.reply) {
+          // Add AI response to chat box
+          addMessageToChat('ai', data.reply);
+        } else {
+          console.error("Invalid API response:", data);
+          throw new Error("Missing reply in API response");
+        }
+      } catch (error) {
+        console.error("Error:", error);
+        removeLoadingIndicator();
+        // Add error message to chat
+        const errorMsg = "Sorry, something went wrong. Please try again later.";
+        addMessageToChat('ai', errorMsg);
+      }
+    }
+
+    function showLoadingIndicator() {
+      const chatBox = document.getElementById('chat-box');
+      const loadingDiv = document.createElement('div');
+      loadingDiv.id = 'loading-indicator';
+      loadingDiv.className = 'loading chat-bubble ai';
+      loadingDiv.innerHTML = 'Thinking<span></span><span></span><span></span>';
+      chatBox.appendChild(loadingDiv);
+      
+      // Scroll to bottom
+      scrollToBottom();
+    }
+
+    function removeLoadingIndicator() {
+      const loadingIndicator = document.getElementById('loading-indicator');
+      if (loadingIndicator) {
+        loadingIndicator.remove();
+      }
+    }
+
+    function addMessageToChat(sender, text) {
+      const chatBox = document.getElementById('chat-box');
+      const artifactPanel = document.querySelector('.artifact-panel');
+      
+      const bubble = document.createElement('div');
+      bubble.classList.add('chat-bubble', sender);
+
+      const label = sender === 'user' ? 'You' : 'Mistral';
+      
+      // Process text for code blocks
+      let processedResult = processCodeBlocks(text);
+      let formattedText = processedResult.text;
+      let extractedCodeBlocks = processedResult.codeBlocks;
+      
+      // Add code artifacts if code blocks were found
+      if (extractedCodeBlocks.length > 0 && sender === 'ai') {
+        // Clear the "No artifacts" message if it exists
+        const noArtifactsMsg = document.querySelector('.no-artifacts');
+        if (noArtifactsMsg) {
+          noArtifactsMsg.remove();
+        }
+        
+        // Add each code block as an artifact
+        extractedCodeBlocks.forEach((block, index) => {
+          const artifactId = `artifact-${artifactCounter}`;
+          artifactCounter++;
+          
+          // Add reference in the chat
+          formattedText = formattedText.replace(
+            `__CODE_BLOCK_${index}__`,
+            `<div class="code-reference" data-artifact-id="${artifactId}">
+              <strong>Code Block ${artifactCounter}</strong> (Click to view)
+            </div>`
+          );
+          
+          // Create artifact in side panel
+          const artifactElement = createCodeArtifact(block.code, block.language, artifactId);
+          artifactPanel.appendChild(artifactElement);
+          
+          // Store artifact info
+          codeArtifacts.push({
+            id: artifactId,
+            code: block.code,
+            language: block.language
+          });
+        });
+      }
+      
+      // Add timestamp
+      const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+      
+      bubble.innerHTML = `<p><strong>${label}:</strong> ${formattedText}</p><div class="timestamp">${time}</div>`;
+      
+      // Add copy button for AI responses (only for text, not code)
+      if (sender === 'ai') {
+        const copyBtn = document.createElement('button');
+        copyBtn.className = 'copy-btn';
+        copyBtn.innerText = 'Copy';
+        copyBtn.onclick = function() {
+          navigator.clipboard.writeText(text)
+            .then(() => {
+              copyBtn.innerText = 'Copied!';
+              setTimeout(() => {
+                copyBtn.innerText = 'Copy';
+              }, 2000);
+            })
+            .catch(err => {
+              console.error('Failed to copy text: ', err);
+            });
+        };
+        bubble.appendChild(copyBtn);
+      }
+
+      chatBox.appendChild(bubble);
+
+      // Scroll to bottom
+      scrollToBottom();
+      
+      // Add event listeners to code references
+      document.querySelectorAll('.code-reference').forEach(ref => {
+        ref.addEventListener('click', function() {
+          const artifactId = this.getAttribute('data-artifact-id');
+          const artifact = document.getElementById(artifactId);
+          if (artifact) {
+            artifact.scrollIntoView({ behavior: 'smooth' });
+            artifact.classList.add('highlight');
+            setTimeout(() => {
+              artifact.classList.remove('highlight');
+            }, 1500);
+          }
+        });
+      });
+    }
+
+    function processCodeBlocks(text) {
+      let codeBlocks = [];
+      let processedText = text;
+      
+      // Find all code blocks with triple backticks
+      const codeBlockRegex = /```(\w*)\n([\s\S]*?)```/g;
+      let match;
+      let index = 0;
+      
+      while ((match = codeBlockRegex.exec(text)) !== null) {
+        const language = match[1] || 'plaintext';
+        const code = match[2];
+        
+        codeBlocks.push({
+          language: language,
+          code: code
+        });
+        
+        // Replace code block with placeholder
+        processedText = processedText.replace(match[0], `__CODE_BLOCK_${index}__`);
+        index++;
+      }
+      
+      // Format the rest of the text
+      processedText = formatMessage(processedText);
+      
+      return {
+        text: processedText,
+        codeBlocks: codeBlocks
+      };
+    }
+
+    function createCodeArtifact(code, language, artifactId) {
+      const artifactElement = document.createElement('div');
+      artifactElement.className = 'code-artifact';
+      artifactElement.id = artifactId;
+      
+      // Create header with language and copy button
+      const header = document.createElement('div');
+      header.className = 'code-artifact-header';
+      
+      const langSpan = document.createElement('span');
+      langSpan.textContent = language || 'Code';
+      
+      const copyBtn = document.createElement('button');
+      copyBtn.className = 'artifact-copy-btn';
+      copyBtn.textContent = 'Copy';
+      copyBtn.onclick = function() {
+        navigator.clipboard.writeText(code)
+          .then(() => {
+            copyBtn.textContent = 'Copied!';
+            setTimeout(() => {
+              copyBtn.textContent = 'Copy';
+            }, 2000);
+          })
+          .catch(err => {
+            console.error('Failed to copy code: ', err);
+          });
+      };
+      
+      header.appendChild(langSpan);
+      header.appendChild(copyBtn);
+      
+      // Create body with code
+      const body = document.createElement('div');
+      body.className = 'code-artifact-body';
+      
+      const pre = document.createElement('pre');
+      pre.textContent = code;
+      
+      body.appendChild(pre);
+      
+      // Add header and body to artifact
+      artifactElement.appendChild(header);
+      artifactElement.appendChild(body);
+      
+      return artifactElement;
+    }
+
+    function formatMessage(text) {
+      // Escape HTML first for security
+      let escapedText = escapeHTML(text);
+      
+      // Process inline code blocks (`code`)
+      escapedText = escapedText.replace(
+        /`([^`]+)`/g,
+        '<code>$1</code>'
+      );
+      
+      // Bold
+      escapedText = escapedText.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+      
+      // Italic
+      escapedText = escapedText.replace(/\*(.*?)\*/g, '<em>$1</em>');
+      
+      // Convert URLs to links
+      escapedText = escapedText.replace(
+        /(https?:\/\/[^\s]+)/g, 
+        '<a href="$1" target="_blank" rel="noopener noreferrer">$1</a>'
+      );
+      
+      // Convert line breaks to <br> (except in code blocks which we've already processed)
+      escapedText = escapedText.replace(/\n/g, '<br>');
+      
+      return escapedText;
+    }
+
+    function escapeHTML(str) {
+      return str.replace(/[&<>"']/g, function(match) {
+        const escapeChars = {
+          '&': '&amp;',
+          '<': '&lt;',
+          '>': '&gt;',
+          '"': '&quot;',
+          "'": '&#39;',
+        };
+        return escapeChars[match];
+      });
+    }
+    
+    function scrollToBottom() {
+      const chatBox = document.getElementById('chat-box');
+      chatBox.scrollTo({
+        top: chatBox.scrollHeight,
+        behavior: 'smooth'
+      });
+    }
+    
+    // Initial scroll to bottom when page loads
+    window.addEventListener('load', scrollToBottom);
+  </script>
+</body>
+</html>
