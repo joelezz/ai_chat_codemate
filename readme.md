@@ -132,6 +132,12 @@ You can easily copy code snippets from CodeMate:
 * **Syntax highlighting not working:** Ensure the language is correctly identified in the code block (using backticks with a language hint). Also, verify that the necessary syntax highlighting library (e.g., Prism.js) is correctly integrated into the frontend. Check your browser's developer console for any JavaScript errors related to syntax highlighting.
 * **Frontend or backend failing to start:** Carefully review the error messages in your terminal. These usually indicate missing dependencies or configuration issues. Follow the instructions in the error messages to resolve them (e.g., installing missing packages).
 
+## Screenshot
+
+![CodeMate Chatbot UI](images/mistral_chat.png)
+<br>
+*A screenshot of the CodeMate chatbot user interface.*
+
 ## Contributing
 
 We welcome contributions to CodeMate! If you have suggestions for improvements, bug fixes, or new features, please feel free to:
