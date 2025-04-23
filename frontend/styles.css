@@ -1,161 +1,304 @@
-/* Base styles */
-body { font-family: sans-serif; padding: 20px; }
-pre code { background: #f4f4f4; padding: 10px; border-radius: 5px; display: block; overflow-x: auto; }
-.chat-message { margin-bottom: 20px; }
-.copy-btn {
-  margin-top: 5px;
-  display: inline-block;
-  padding: 5px 10px;
-  background-color: #eee;
-  border: none;
-  cursor: pointer;
-  font-size: 0.8rem;
-}
+  /* Base styles */
+  body {
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f2f2f2;
+    color: #333;
+    line-height: 1.6;
+    display: flex;
+    height: 100vh;
+  }
 
-/* Centered container */
-.container {
+  /* Main chat container */
+  .container {
     background-color: white;
-    max-width: 800px;
-    margin: 5em auto;
-    padding: 2em;
-    border: 2px dotted #ddd;
-    border-radius: 10px;
+    width: 60%;
+    height: 100vh;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
     box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-}
+  }
 
-/* Chat box container */
-#chat-box {
+  /* Artifact panel */
+  .artifact-panel {
+    width: 40%;
+    height: 100vh;
+    background-color: #f8f8f8;
+    padding: 20px;
+    overflow-y: auto;
+    box-shadow: inset 2px 0 5px rgba(0,0,0,0.05);
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  /* Header */
+  h1 {
+    color: #333;
+    text-align: center;
+    margin: 0;
+    padding: 20px 0;
+    border-bottom: 1px solid #eee;
+  }
+
+  /* Chat box container */
+  #chat-box {
     display: flex;
     flex-direction: column;
     gap: 12px;
-    max-height: 400px;
+    flex-grow: 1;
     overflow-y: auto;
     padding: 15px;
-    border-radius: 10px;
-    background-color: #f0f8ff;
-    margin-bottom: 1em;
+    margin-bottom: 0;
     scrollbar-width: thin;
-}
+  }
 
-/* Styling scrollbar for WebKit browsers */
-#chat-box::-webkit-scrollbar {
+  /* Styling scrollbar for WebKit browsers */
+  #chat-box::-webkit-scrollbar {
     width: 6px;
-}
+  }
 
-#chat-box::-webkit-scrollbar-thumb {
+  #chat-box::-webkit-scrollbar-thumb {
     background-color: #ccc;
     border-radius: 3px;
-}
+  }
 
-/* Message bubbles - shared styles */
-.chat-bubble {
+  /* Message bubbles */
+  .chat-bubble {
     padding: 12px 16px;
-    border-radius: 20px;
-    max-width: 65%;
+    border-radius: 16px;
+    max-width: 80%;
     word-wrap: break-word;
     box-shadow: 0 1px 2px rgba(0,0,0,0.1);
     animation: fadeIn 0.3s ease-out;
-    transition: transform 0.2s ease-in-out;
+    margin: 4px 0;
+  }
 
-}
-
-/* User message bubble */
-.chat-bubble.user {
+  .chat-bubble.user {
     align-self: flex-end;
     background-color: #3d5aff;
     color: white;
     border-bottom-right-radius: 5px;
-}
+    margin-left: auto;
+  }
 
-/* AI message bubble */
-.chat-bubble.ai {
+  .chat-bubble.ai {
     align-self: flex-start;
-    background-color: darksalmon;
+    background-color: #e6f7e6;
     color: #222;
     border-bottom-left-radius: 5px;
-}
+  }
 
-
-/* Message time stamp */
-.timestamp {
+  /* Message time stamp */
+  .timestamp {
     font-size: 0.7em;
     opacity: 0.7;
     margin-top: 4px;
     text-align: right;
-}
+  }
 
-.input-area {
+  /* Input area */
+  .input-area {
     display: flex;
     gap: 10px;
-    justify-content: space-between;
-    align-items: center;
-    padding: 0 15px 15px 15px;
-    flex-wrap: wrap;
-}
+    padding: 15px;
+    border-top: 1px solid #eee;
+    background-color: white;
+  }
 
-#user-msg {
+  #user-input {
     flex-grow: 1;
     padding: 12px;
     border-radius: 20px;
     border: 1px solid #ddd;
     font-size: 1em;
     transition: border-color 0.2s;
-    width: 100%;
-}
+  }
 
-#send-btn {
-    margin-top: 10px;
-    background-color: #3d5aff;
-    color: white;
-    border: none;
-    border-radius: 8px;
-    width: 100%;
-    height: 40px;
-    cursor: pointer;
-}
-
-
-#user-msg:focus {
+  #user-input:focus {
     outline: none;
     border-color: #3d5aff;
     box-shadow: 0 0 0 2px rgba(61, 90, 255, 0.2);
-}
+  }
 
-#send-btn {
+  #send-btn {
     background-color: #3d5aff;
     color: white;
     border: none;
-    border-radius: 5%;
-    width: 100px;
-    height: 40px;
+    border-radius: 20px;
+    padding: 0 20px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.2s;
+  }
+
+  #send-btn:hover {
+    background-color: #2a3eb1;
+  }
+
+  /* Copy button styling */
+  .copy-btn {
+    margin-top: 5px;
+    padding: 5px 10px;
+    background-color: #eee;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.8rem;
+    display: inline-block;
+  }
+
+  .copy-btn:hover {
+    background-color: #ddd;
+  }
+
+  /* Loading indicator */
+  .loading {
     display: flex;
     align-items: center;
     justify-content: center;
+    padding: 10px;
+  }
+
+  .loading span {
+    width: 8px;
+    height: 8px;
+    margin: 0 2px;
+    background-color: #555;
+    border-radius: 50%;
+    display: inline-block;
+    animation: pulse 1.5s infinite ease-in-out;
+  }
+
+  .loading span:nth-child(2) {
+    animation-delay: 0.2s;
+  }
+
+  .loading span:nth-child(3) {
+    animation-delay: 0.4s;
+  }
+
+  /* Code artifact styling */
+.code-artifact {
+  /* Remove background-color: #282c34; */
+  border-radius: 8px;
+  box-shadow: 0 3px 8px rgba(0,0,0,0.2);
+  position: relative;
+  animation: slideIn 0.3s ease-out;
+}
+
+.code-artifact-header {
+  background-color: #21252b; /* Keep header dark if desired */
+  color: #abb2bf;
+  padding: 10px 15px;
+  border-radius: 8px 8px 0 0;
+  font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+  font-size: 14px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.code-artifact-body {
+  padding: 15px;
+  overflow-x: auto;
+  /* Remove background-color if you want Prism's theme to handle it */
+}
+
+.code-artifact pre {
+  color: #abb2bf; /* You might want Prism to control text color too */
+  font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+  margin: 0;
+  white-space: pre;
+  font-size: 14px;
+  line-height: 1.5;
+  /* Remove or adjust background-color if present here */
+}
+
+.artifact-copy-btn {
+  background-color: rgba(255, 255, 255, 0.1);
+  color: #abb2bf;
+  border: none;
+  border-radius: 4px;
+  padding: 4px 8px;
+  font-size: 12px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+  .artifact-copy-btn:hover {
+    background-color: rgba(255, 255, 255, 0.2);
+  }
+
+  /* Placeholder for when no artifacts are available */
+  .no-artifacts {
+    color: #888;
+    text-align: center;
+    margin-top: 30px;
+    font-style: italic;
+  }
+
+  /* Code reference in chat */
+  .code-reference {
+    background-color: #f0f0f0;
+    border-left: 3px solid #3d5aff;
+    padding: 8px 12px;
+    margin: 5px 0;
+    font-size: 0.9em;
     cursor: pointer;
     transition: background-color 0.2s;
-    float: right;
-}
+  }
 
-#send-btn:hover {
-    background-color: #2a3eb1;
-}
+  .code-reference:hover {
+    background-color: #e8e8e8;
+  }
 
-/* Animation */
-@keyframes fadeIn {
+  /* Inline code styling */
+  code {
+    background-color: rgba(0, 0, 0, 0.05);
+    font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+    padding: 2px 4px;
+    border-radius: 3px;
+    font-size: 0.9em;
+    color: #e83e8c;
+  }
+
+  /* Animation */
+  @keyframes fadeIn {
     from { opacity: 0; transform: translateY(10px); }
     to { opacity: 1; transform: translateY(0); }
-}
+  }
 
-/* Responsive adjustments */
-@media (max-width: 600px) {
+  @keyframes slideIn {
+    from { opacity: 0; transform: translateX(20px); }
+    to { opacity: 1; transform: translateX(0); }
+  }
+
+  @keyframes pulse {
+    0%, 100% { transform: scale(0.8); opacity: 0.5; }
+    50% { transform: scale(1.2); opacity: 1; }
+  }
+
+  /* Responsive adjustments */
+  @media (max-width: 900px) {
+    body {
+      flex-direction: column;
+    }
+    
     .container {
-        margin: 0;
-        max-width: 100%;
-        border-radius: 0;
-        padding: 1em;
+      width: 100%;
+      height: 60vh;
+    }
+    
+    .artifact-panel {
+      width: 100%;
+      height: 40vh;
+      padding: 10px;
     }
     
     .chat-bubble {
-        max-width: 80%;
+      max-width: 90%;
     }
-}
+  }
