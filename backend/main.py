@@ -22,7 +22,7 @@ app = FastAPI(title="Mistral Chat API")
 # Allow CORS
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # In production, specify your frontend domain
+    allow_origins=["*"], 
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -103,6 +103,7 @@ async def chat(request: Request):
             content={"error": f"An unexpected error occurred: {str(e)}"}
         )
 
+# Inside main.py (Corrected)
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run("app:app", host="0.0.0.0", port=8000, reload=True)
+    uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)
